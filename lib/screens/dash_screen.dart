@@ -1,11 +1,13 @@
 import 'dart:async';
-
+import 'dart:isolate';
 import 'package:flutter/material.dart';
+import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:speed_ometer/components/coolbuttion.dart';
 import 'package:speed_ometer/components/speedometer.dart';
+import 'package:workmanager/workmanager.dart';
 
 class DashScreen extends StatefulWidget {
   const DashScreen({this.unit = 'm/s', Key? key}) : super(key: key);
@@ -79,12 +81,13 @@ class _DashScreenState extends State<DashScreen> {
     return velocity;
   }
 
-  audioPlayer() async {
+  void audioPlayer(String h) async {
     final player = AudioPlayer();
     while (true) {
       if ((_velocity ?? 0) > chimeSpeed) {
-        await player.play(DeviceFileSource("lib/audio/chime.mp3"));
-        await Future.delayed(const Duration(seconds: 1));
+        print("Sound Played");
+        await player.play(DeviceFileSource(
+            "audio/chime.mp3")); // will immediately start playing              await Future.delayed(const Duration(seconds: 1));
       }
     }
   }
@@ -151,8 +154,8 @@ class _DashScreenState extends State<DashScreen> {
         ),
 
         SizedButton(
-          onPressed: () {
-            audioPlayer();
+          onPressed: () async {
+            FlutterIsolate.spawn(audioPlayer, "hello world");
           },
           text: "Start Speed Limit, Set At " + chimeSpeed.toString(),
           width: 100,
@@ -163,8 +166,11 @@ class _DashScreenState extends State<DashScreen> {
           height: 30,
         ),
         SizedButton(
-          onPressed: () {
-            chimeSpeed = chimeSpeed + 5;
+          onPressed: () async {
+            final player = AudioPlayer();
+            await player.play(DeviceFileSource(
+                "lib/audio/chime.mp3")); // will immediately start playing            chimeSpeed = chimeSpeed + 5;
+            print("Sound Played");
             setState(() {});
           },
           text: "Increase By 5",

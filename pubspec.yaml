@@ -29,6 +29,8 @@ dependencies:
   syncfusion_flutter_gauges: ^23.1.40
   audioplayers: ^5.2.0
   file: ^7.0.0
+  workmanager: ^0.5.2
+  flutter_isolate: ^2.0.4
 
 dev_dependencies:
   flutter_lints: ^2.0.3
