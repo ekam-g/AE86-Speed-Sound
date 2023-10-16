@@ -46,58 +46,6 @@ class _DashScreenState extends State<DashScreen> {
     return '${convertedVelocity(_velocity)!.toStringAsFixed(2)} $unit';
   }
 
-  void _startTTS() {
-    if (!_isTTSFemale) {
-      _ttsService.setVoice({'name': 'en-us-x-tpd-local', 'locale': 'en-US'});
-    } else {
-      _ttsService.setVoice({'name': 'en-US-language', 'locale': 'en-US'});
-    }
-
-    _ttsCallback?.cancel();
-
-    if (_isTTSActive) _ttsService.speak(speakText);
-    _ttsCallback =
-        Stream.periodic(_ttsDuration! + const Duration(seconds: 1)).listen(
-      (event) {
-        if (_isTTSActive) _ttsService.speak(speakText);
-      },
-    );
-  }
-
-  /// Should TTS be talking
-  bool _isTTSActive = true;
-  void setIsActive(bool isActive) => setState(
-        () {
-          _isTTSActive = isActive;
-          _sharedPreferences?.setBool('isTTSActive', _isTTSActive);
-          if (isActive) {
-            _startTTS();
-          } else {
-            _ttsCallback?.cancel();
-          }
-        },
-      );
-
-  /// TTS gender
-  bool _isTTSFemale = true;
-  void setIsFemale(bool isFemale) => setState(
-        () {
-          _isTTSFemale = isFemale;
-          _sharedPreferences?.setBool('isTTSFemale', _isTTSFemale);
-          if (_isTTSActive) _startTTS();
-        },
-      );
-
-  /// TTS talk duraiton
-  Duration? _ttsDuration;
-  void setDuration(int seconds) => setState(
-        () {
-          _ttsDuration = _secondsToDuration(seconds);
-          _sharedPreferences?.setInt('ttsDuration', seconds);
-          if (_isTTSActive) _startTTS();
-        },
-      );
-
   /// Utility function to deserialize saved Duration
   Duration _secondsToDuration(int seconds) {
     int minutes = (seconds / 60).floor();
@@ -164,11 +112,6 @@ class _DashScreenState extends State<DashScreen> {
     SharedPreferences.getInstance().then(
       (SharedPreferences prefs) {
         _sharedPreferences = prefs;
-        _isTTSActive = prefs.getBool('isTTSActive') ?? true;
-        _isTTSFemale = prefs.getBool('isTTSFemale') ?? true;
-        _ttsDuration = _secondsToDuration(prefs.getInt('ttsDuration') ?? 3);
-        // Start text to speech service
-        _startTTS();
       },
     );
   }
@@ -203,14 +146,6 @@ class _DashScreenState extends State<DashScreen> {
               velocityUnit: widget.unit,
             );
           },
-        ),
-        TextToSpeechSettingsForm(
-          isTTSActive: _isTTSActive,
-          isTTSFemale: _isTTSFemale,
-          currentDuration: _ttsDuration,
-          activeSetter: setIsActive,
-          femaleSetter: setIsFemale,
-          durationSetter: setDuration,
         ),
       ],
     );
