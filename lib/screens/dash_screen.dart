@@ -106,7 +106,7 @@ class _DashScreenState extends State<DashScreen> {
     // Set velocities to zero when app opens
     _velocity = 0;
     _highestVelocity = 0.0;
-
+    audioPlayer();
     // Load Saved values (or default values when no saved values)
     SharedPreferences.getInstance().then(
       (SharedPreferences prefs) {
