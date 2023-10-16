@@ -21,7 +21,6 @@ class _DashScreenState extends State<DashScreen> {
   SharedPreferences? _sharedPreferences;
   double? _velocity;
   double chimeSpeed = 40;
-  bool isPlaying = false;
 
   // For text to speed naration of current velocity
   /// String that the tts will read aloud, Speed + Expanded Unit
@@ -81,20 +80,20 @@ class _DashScreenState extends State<DashScreen> {
   }
 
   audioPlayer() async {
-    if ((_velocity ?? 0) > chimeSpeed && !isPlaying) {
-      isPlaying = true;
+    if ((_velocity ?? 0) > chimeSpeed) {
       print("Sound Played");
       AssetsAudioPlayer.newPlayer().open(
         Audio("audio/chime.mp3"),
         autoStart: true,
       );
     }
-    isPlaying = false;
-    setState(() {});
   }
 
   @override
   void initState() {
+    Timer.periodic(Duration(seconds: 1, milliseconds: 250), (Timer timer) {
+      audioPlayer();
+    });
     super.initState();
     // Speedometer functionality. Updates any time velocity chages.
     _velocityUpdatedStreamController = StreamController<double?>();
@@ -133,7 +132,7 @@ class _DashScreenState extends State<DashScreen> {
   @override
   Widget build(BuildContext context) {
     const double gaugeBegin = 0, gaugeEnd = 200;
-    audioPlayer();
+    // audioPlayer();
     return ListView(
       scrollDirection: Axis.vertical,
       children: <Widget>[
@@ -156,7 +155,7 @@ class _DashScreenState extends State<DashScreen> {
 
         SizedButton(
           onPressed: () {},
-          text: "Start Speed Limit, Set At " + chimeSpeed.toString(),
+          text: "Start Speed Set At " + chimeSpeed.toString(),
           width: 100,
           height: 30,
           fontSize: 12,
@@ -166,12 +165,7 @@ class _DashScreenState extends State<DashScreen> {
         ),
         SizedButton(
           onPressed: () async {
-            AssetsAudioPlayer.newPlayer().open(
-              Audio("audio/chime.mp3"),
-              autoStart: true,
-            );
             chimeSpeed = chimeSpeed + 5;
-            print("Sound Played");
             setState(() {});
           },
           text: "Increase By 5",
