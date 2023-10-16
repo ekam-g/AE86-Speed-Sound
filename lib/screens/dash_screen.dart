@@ -1,13 +1,15 @@
 import 'dart:async';
-import 'dart:isolate';
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_isolate/flutter_isolate.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:speed_ometer/components/coolbuttion.dart';
 import 'package:speed_ometer/components/speedometer.dart';
 import 'package:workmanager/workmanager.dart';
+
+/// Current Velocity in m/s
+double? _velocity;
+double chimeSpeed = 40;
 
 class DashScreen extends StatefulWidget {
   const DashScreen({this.unit = 'm/s', Key? key}) : super(key: key);
@@ -54,10 +56,6 @@ class _DashScreenState extends State<DashScreen> {
   /// Stream that emits values when velocity updates
   late StreamController<double?> _velocityUpdatedStreamController;
 
-  /// Current Velocity in m/s
-  double? _velocity;
-  double chimeSpeed = 40;
-
   /// Highest recorded velocity so far in m/s.
   double? _highestVelocity;
 
@@ -81,19 +79,43 @@ class _DashScreenState extends State<DashScreen> {
     return velocity;
   }
 
-  void audioPlayer(String h) async {
-    final player = AudioPlayer();
-    while (true) {
-      if ((_velocity ?? 0) > chimeSpeed) {
-        print("Sound Played");
-        await player.play(DeviceFileSource(
-            "audio/chime.mp3")); // will immediately start playing              await Future.delayed(const Duration(seconds: 1));
+  @pragma(
+      'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
+  static void audioPlayerD() {
+    Workmanager().executeTask((task, inputData) async {
+      while (true) {
+        print("On");
+        if ((_velocity ?? 0) > chimeSpeed) {
+          print("Sound Played");
+          AssetsAudioPlayer.newPlayer().open(
+            Audio("audio/chime.mp3"),
+            autoStart: true,
+          );
+          await Future.delayed(const Duration(seconds: 1));
+        }
       }
+    });
+  }
+
+  audioPlayer() async {
+    if ((_velocity ?? 0) > chimeSpeed) {
+      print("Sound Played");
+      AssetsAudioPlayer.newPlayer().open(
+        Audio("audio/chime.mp3"),
+        autoStart: true,
+      );
     }
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {});
   }
 
   @override
   void initState() {
+    Workmanager().initialize(
+        audioPlayerD, // The top level function, aka callbackDispatcher
+        isInDebugMode:
+            true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+        );
     super.initState();
     // Speedometer functionality. Updates any time velocity chages.
     _velocityUpdatedStreamController = StreamController<double?>();
@@ -131,8 +153,8 @@ class _DashScreenState extends State<DashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const AudioPlayer();
     const double gaugeBegin = 0, gaugeEnd = 200;
-
     return ListView(
       scrollDirection: Axis.vertical,
       children: <Widget>[
@@ -154,8 +176,8 @@ class _DashScreenState extends State<DashScreen> {
         ),
 
         SizedButton(
-          onPressed: () async {
-            FlutterIsolate.spawn(audioPlayer, "hello world");
+          onPressed: () {
+            Workmanager().registerOneOffTask("task-identifier", "simpleTask");
           },
           text: "Start Speed Limit, Set At " + chimeSpeed.toString(),
           width: 100,
@@ -167,9 +189,11 @@ class _DashScreenState extends State<DashScreen> {
         ),
         SizedButton(
           onPressed: () async {
-            final player = AudioPlayer();
-            await player.play(DeviceFileSource(
-                "lib/audio/chime.mp3")); // will immediately start playing            chimeSpeed = chimeSpeed + 5;
+            AssetsAudioPlayer.newPlayer().open(
+              Audio("audio/chime.mp3"),
+              autoStart: true,
+            );
+            chimeSpeed = chimeSpeed + 5;
             print("Sound Played");
             setState(() {});
           },
@@ -200,5 +224,35 @@ class _DashScreenState extends State<DashScreen> {
     // Velocity Stream
     _velocityUpdatedStreamController.close();
     super.dispose();
+  }
+}
+
+bool isPlaying = false;
+
+class AudioPlayer extends StatefulWidget {
+  const AudioPlayer({Key? key}) : super(key: key);
+
+  @override
+  _AudioPlayer createState() => _AudioPlayer();
+}
+
+class _AudioPlayer extends State<AudioPlayer> {
+  audioPlayer() {
+    if ((_velocity ?? 0) > chimeSpeed && !isPlaying) {
+      isPlaying = true;
+      print("Sound Played");
+      AssetsAudioPlayer.newPlayer().open(
+        Audio("audio/chime.mp3"),
+        autoStart: true,
+      );
+      isPlaying = false;
+    }
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    audioPlayer();
+    return SizedBox();
   }
 }
