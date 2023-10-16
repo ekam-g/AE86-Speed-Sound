@@ -5,11 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speed_ometer/components/coolbuttion.dart';
 import 'package:speed_ometer/components/speedometer.dart';
-import 'package:workmanager/workmanager.dart';
 
 /// Current Velocity in m/s
-double? _velocity;
-double chimeSpeed = 40;
 
 class DashScreen extends StatefulWidget {
   const DashScreen({this.unit = 'm/s', Key? key}) : super(key: key);
@@ -22,6 +19,10 @@ class DashScreen extends StatefulWidget {
 
 class _DashScreenState extends State<DashScreen> {
   SharedPreferences? _sharedPreferences;
+  double? _velocity;
+  double chimeSpeed = 40;
+  bool isPlaying = false;
+
   // For text to speed naration of current velocity
   /// String that the tts will read aloud, Speed + Expanded Unit
   String get speakText {
@@ -79,43 +80,21 @@ class _DashScreenState extends State<DashScreen> {
     return velocity;
   }
 
-  @pragma(
-      'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-  static void audioPlayerD() {
-    Workmanager().executeTask((task, inputData) async {
-      while (true) {
-        print("On");
-        if ((_velocity ?? 0) > chimeSpeed) {
-          print("Sound Played");
-          AssetsAudioPlayer.newPlayer().open(
-            Audio("audio/chime.mp3"),
-            autoStart: true,
-          );
-          await Future.delayed(const Duration(seconds: 1));
-        }
-      }
-    });
-  }
-
   audioPlayer() async {
-    if ((_velocity ?? 0) > chimeSpeed) {
+    if ((_velocity ?? 0) > chimeSpeed && !isPlaying) {
+      isPlaying = true;
       print("Sound Played");
       AssetsAudioPlayer.newPlayer().open(
         Audio("audio/chime.mp3"),
         autoStart: true,
       );
     }
-    await Future.delayed(const Duration(seconds: 1));
+    isPlaying = false;
     setState(() {});
   }
 
   @override
   void initState() {
-    Workmanager().initialize(
-        audioPlayerD, // The top level function, aka callbackDispatcher
-        isInDebugMode:
-            true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-        );
     super.initState();
     // Speedometer functionality. Updates any time velocity chages.
     _velocityUpdatedStreamController = StreamController<double?>();
@@ -153,8 +132,8 @@ class _DashScreenState extends State<DashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const AudioPlayer();
     const double gaugeBegin = 0, gaugeEnd = 200;
+    audioPlayer();
     return ListView(
       scrollDirection: Axis.vertical,
       children: <Widget>[
@@ -176,9 +155,7 @@ class _DashScreenState extends State<DashScreen> {
         ),
 
         SizedButton(
-          onPressed: () {
-            Workmanager().registerOneOffTask("task-identifier", "simpleTask");
-          },
+          onPressed: () {},
           text: "Start Speed Limit, Set At " + chimeSpeed.toString(),
           width: 100,
           height: 30,
@@ -224,35 +201,5 @@ class _DashScreenState extends State<DashScreen> {
     // Velocity Stream
     _velocityUpdatedStreamController.close();
     super.dispose();
-  }
-}
-
-bool isPlaying = false;
-
-class AudioPlayer extends StatefulWidget {
-  const AudioPlayer({Key? key}) : super(key: key);
-
-  @override
-  _AudioPlayer createState() => _AudioPlayer();
-}
-
-class _AudioPlayer extends State<AudioPlayer> {
-  audioPlayer() {
-    if ((_velocity ?? 0) > chimeSpeed && !isPlaying) {
-      isPlaying = true;
-      print("Sound Played");
-      AssetsAudioPlayer.newPlayer().open(
-        Audio("audio/chime.mp3"),
-        autoStart: true,
-      );
-      isPlaying = false;
-    }
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    audioPlayer();
-    return SizedBox();
   }
 }
