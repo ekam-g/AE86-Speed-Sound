@@ -29,6 +29,7 @@ dependencies:
   geolocator: ^8.2.0
   numberpicker: ^2.1.1
   syncfusion_flutter_gauges: ^19.4.54
+  audioplayers: ^5.2.0
 
 dev_dependencies:
   flutter_lints: ^1.0.4

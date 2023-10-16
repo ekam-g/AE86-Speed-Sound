@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-
+import 'package:audioplayers/audioplayers.dart';
 import 'package:speed_ometer/components/speedometer.dart';
 
 class DashScreen extends StatefulWidget {
@@ -54,6 +54,7 @@ class _DashScreenState extends State<DashScreen> {
 
   /// Current Velocity in m/s
   double? _velocity;
+  double chimeSpeed = 40;
 
   /// Highest recorded velocity so far in m/s.
   double? _highestVelocity;
@@ -76,6 +77,15 @@ class _DashScreenState extends State<DashScreen> {
       return mpstomilesph(velocity!);
     }
     return velocity;
+  }
+
+  Future<void> audioPlayer() async {
+    final player = AudioPlayer();
+    while (true) {
+      if ((_velocity ?? 0) > chimeSpeed) {
+        await player.play(DeviceFileSource("lib/audio/chime.mp3"));
+      }
+    }
   }
 
   @override
@@ -144,7 +154,6 @@ class _DashScreenState extends State<DashScreen> {
   void dispose() {
     // Velocity Stream
     _velocityUpdatedStreamController.close();
-
     super.dispose();
   }
 }
