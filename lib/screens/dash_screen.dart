@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:speed_ometer/components/coolbuttion.dart';
 import 'package:speed_ometer/components/speedometer.dart';
@@ -85,6 +84,7 @@ class _DashScreenState extends State<DashScreen> {
     while (true) {
       if ((_velocity ?? 0) > chimeSpeed) {
         await player.play(DeviceFileSource("lib/audio/chime.mp3"));
+        await Future.delayed(const Duration(seconds: 1));
       }
     }
   }

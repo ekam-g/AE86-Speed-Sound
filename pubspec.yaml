@@ -18,21 +18,20 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
-
+   sdk: ">=2.16.2 <3.0.0"
+   
 dependencies:
   flutter:
     sdk: flutter
-  flutter_tts: ^3.3.3
-  gender_picker: ^1.1.0
   shared_preferences: ^2.0.13
-  geolocator: ^8.2.0
+  geolocator: ^10.1.0
   numberpicker: ^2.1.1
-  syncfusion_flutter_gauges: ^19.4.54
+  syncfusion_flutter_gauges: ^23.1.40
   audioplayers: ^5.2.0
+  file: ^7.0.0
 
 dev_dependencies:
-  flutter_lints: ^1.0.4
+  flutter_lints: ^2.0.3
   flutter_test:
     sdk: flutter
 

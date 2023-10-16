@@ -27,7 +27,7 @@ Future<void> main() async {
 
     case LocationPermission.denied:
     case LocationPermission.unableToDetermine:
-      runApp(const NoPermissionApp(hasCheckedPermissions: false));
+      runApp(const SpeedometerApp());
   }
 }
 
