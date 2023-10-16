@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:speed_ometer/components/coolbuttion.dart';
 import 'package:speed_ometer/components/speedometer.dart';
 
 class DashScreen extends StatefulWidget {
@@ -146,6 +147,26 @@ class _DashScreenState extends State<DashScreen> {
             );
           },
         ),
+        SizedButton(
+          onPressed: () {
+            chimeSpeed = chimeSpeed + 5;
+            setState(() {});
+          },
+          text: chimeSpeed.toString() + " Increase By 5",
+          width: 100,
+          height: 30,
+          fontSize: 8,
+        ),
+        SizedButton(
+          onPressed: () {
+            chimeSpeed = chimeSpeed - 5;
+            setState(() {});
+          },
+          text: chimeSpeed.toString() + " Decrease By 5",
+          width: 100,
+          height: 30,
+          fontSize: 8,
+        )
       ],
     );
   }
