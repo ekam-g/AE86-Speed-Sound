@@ -79,7 +79,7 @@ class _DashScreenState extends State<DashScreen> {
     return velocity;
   }
 
-  Future<void> audioPlayer() async {
+  audioPlayer() async {
     final player = AudioPlayer();
     while (true) {
       if ((_velocity ?? 0) > chimeSpeed) {
