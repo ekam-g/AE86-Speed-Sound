@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:speed_ometer/components/speedometer.dart';
-import 'package:speed_ometer/components/tts_form.dart';
 
 class DashScreen extends StatefulWidget {
   const DashScreen({this.unit = 'm/s', Key? key}) : super(key: key);
@@ -20,12 +19,6 @@ class DashScreen extends StatefulWidget {
 class _DashScreenState extends State<DashScreen> {
   SharedPreferences? _sharedPreferences;
   // For text to speed naration of current velocity
-  /// Initiate service
-  late FlutterTts _ttsService;
-
-  /// Create a stream trying to speak speed
-  StreamSubscription? _ttsCallback;
-
   /// String that the tts will read aloud, Speed + Expanded Unit
   String get speakText {
     String unit;
@@ -104,10 +97,6 @@ class _DashScreenState extends State<DashScreen> {
     _velocity = 0;
     _highestVelocity = 0.0;
 
-    // Set up tts
-    _ttsService = FlutterTts();
-    _ttsService.setSpeechRate(1);
-
     // Load Saved values (or default values when no saved values)
     SharedPreferences.getInstance().then(
       (SharedPreferences prefs) {
@@ -155,9 +144,7 @@ class _DashScreenState extends State<DashScreen> {
   void dispose() {
     // Velocity Stream
     _velocityUpdatedStreamController.close();
-    // TTS
-    _ttsCallback!.cancel();
-    _ttsService.stop();
+
     super.dispose();
   }
 }
