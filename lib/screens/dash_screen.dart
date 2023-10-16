@@ -107,7 +107,6 @@ class _DashScreenState extends State<DashScreen> {
     // Set velocities to zero when app opens
     _velocity = 0;
     _highestVelocity = 0.0;
-    audioPlayer();
     // Load Saved values (or default values when no saved values)
     SharedPreferences.getInstance().then(
       (SharedPreferences prefs) {
@@ -147,25 +146,44 @@ class _DashScreenState extends State<DashScreen> {
             );
           },
         ),
+        const SizedBox(
+          height: 30,
+        ),
+
+        SizedButton(
+          onPressed: () async {
+            await audioPlayer();
+          },
+          text: "Start Speed Limit, Set At " + chimeSpeed.toString(),
+          width: 100,
+          height: 30,
+          fontSize: 12,
+        ),
+        const SizedBox(
+          height: 30,
+        ),
         SizedButton(
           onPressed: () {
             chimeSpeed = chimeSpeed + 5;
             setState(() {});
           },
-          text: chimeSpeed.toString() + " Increase By 5",
+          text: "Increase By 5",
           width: 100,
           height: 30,
-          fontSize: 8,
+          fontSize: 12,
+        ),
+        const SizedBox(
+          height: 30,
         ),
         SizedButton(
           onPressed: () {
             chimeSpeed = chimeSpeed - 5;
             setState(() {});
           },
-          text: chimeSpeed.toString() + " Decrease By 5",
+          text: "Decrease By 5",
           width: 100,
           height: 30,
-          fontSize: 8,
+          fontSize: 12,
         )
       ],
     );
