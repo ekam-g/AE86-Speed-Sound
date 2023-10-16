@@ -151,8 +151,8 @@ class _DashScreenState extends State<DashScreen> {
         ),
 
         SizedButton(
-          onPressed: () async {
-            await audioPlayer();
+          onPressed: () {
+            audioPlayer();
           },
           text: "Start Speed Limit, Set At " + chimeSpeed.toString(),
           width: 100,
